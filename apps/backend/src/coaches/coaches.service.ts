@@ -9,25 +9,6 @@ import { Coach, DatabaseSchema, UnlockHistory } from 'shared-types';
 
 @Injectable()
 export class CoachesService {
-  private getDbPath(): string {
-    return path.join(process.cwd(), '../../db.json');
-  }
-
-  private getDatabase(): DatabaseSchema {
-    const dbPath = this.getDbPath();
-    const dbContent = fs.readFileSync(dbPath, 'utf8');
-    return JSON.parse(dbContent) as DatabaseSchema;
-  }
-
-  private saveDatabase(db: DatabaseSchema): void {
-    const dbPath = this.getDbPath();
-    fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
-  }
-
-  private generateId(): string {
-    return Date.now().toString() + Math.random().toString(36).substr(2, 9);
-  }
-
   getAllCoaches(): Coach[] {
     const db = this.getDatabase();
     return db.coaches;
@@ -91,5 +72,24 @@ export class CoachesService {
       coach: coach,
       showRedFlagWarning: coach.hasRedFlag,
     };
+  }
+
+  private getDbPath(): string {
+    return path.join(process.cwd(), '../../db.json');
+  }
+
+  private getDatabase(): DatabaseSchema {
+    const dbPath = this.getDbPath();
+    const dbContent = fs.readFileSync(dbPath, 'utf8');
+    return JSON.parse(dbContent) as DatabaseSchema;
+  }
+
+  private saveDatabase(db: DatabaseSchema): void {
+    const dbPath = this.getDbPath();
+    fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+  }
+
+  private generateId(): string {
+    return Date.now().toString() + Math.random().toString(36).substr(2, 9);
   }
 }
