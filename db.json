@@ -1,0 +1,75 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "John Athlete",
+      "tokens": 25,
+      "xp": 100,
+      "unlockedCoaches": []
+    }
+  ],
+  "coaches": [
+    {
+      "id": "coach-1",
+      "name": "Mike Johnson",
+      "position": "Head Coach",
+      "school": "State University",
+      "available": true,
+      "hasRedFlag": true,
+      "redFlagReason": "Recent NCAA violation investigation",
+      "unlockCost": 10
+    },
+    {
+      "id": "coach-2",
+      "name": "Sarah Williams",
+      "position": "Offensive Coordinator",
+      "school": "Tech College",
+      "available": true,
+      "hasRedFlag": false,
+      "unlockCost": 8
+    },
+    {
+      "id": "coach-3",
+      "name": "Robert Davis",
+      "position": "Defensive Coordinator",
+      "school": "Elite Academy",
+      "available": false,
+      "hasRedFlag": false,
+      "unlockCost": 12
+    },
+    {
+      "id": "coach-4",
+      "name": "Jessica Martinez",
+      "position": "Special Teams Coach",
+      "school": "Mountain View High",
+      "available": true,
+      "hasRedFlag": true,
+      "redFlagReason": "Multiple player transfer violations",
+      "unlockCost": 7
+    },
+    {
+      "id": "coach-5",
+      "name": "David Thompson",
+      "position": "Recruiting Coordinator",
+      "school": "Champions University",
+      "available": true,
+      "hasRedFlag": false,
+      "unlockCost": 15
+    },
+    {
+      "id": "coach-6",
+      "name": "Amanda Foster",
+      "position": "Assistant Coach",
+      "school": "Riverside Prep",
+      "available": false,
+      "hasRedFlag": true,
+      "redFlagReason": "Under investigation for improper benefits",
+      "unlockCost": 6
+    }
+  ],
+  "unlockHistory": [],
+  "gameConfig": {
+    "xpPerUnlock": 5,
+    "tokenCostPerUnlock": 10
+  }
+}
