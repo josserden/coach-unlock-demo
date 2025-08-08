@@ -1,4 +1,4 @@
-import type { Coach } from "../../../../packages/shared-types";
+import type { Coach } from "shared-types";
 
 interface RedFlagModalProps {
   coach: Coach | null;
@@ -61,7 +61,7 @@ export function RedFlagModal({
       </div>
 
       {/* Backdrop */}
-      <div className="modal-backdrop" onClick={onCancel}></div>
+      <div className="modal-backdrop" onClick={onCancel} />
     </div>
   );
 }

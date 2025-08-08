@@ -3,9 +3,13 @@
     {
       "id": "1",
       "name": "John Athlete",
-      "tokens": 25,
-      "xp": 100,
-      "unlockedCoaches": []
+      "tokens": 0,
+      "xp": 115,
+      "unlockedCoaches": [
+        "coach-2",
+        "coach-1",
+        "coach-4"
+      ]
     }
   ],
   "coaches": [
@@ -67,7 +71,35 @@
       "unlockCost": 6
     }
   ],
-  "unlockHistory": [],
+  "unlockHistory": [
+    {
+      "id": "1754663758492hrwv9zey1",
+      "userId": "1",
+      "coachId": "coach-2",
+      "timestamp": "2025-08-08T14:35:58.492Z",
+      "tokensSpent": 8,
+      "xpGained": 5,
+      "hasRedFlag": false
+    },
+    {
+      "id": "17546637632822arypknor",
+      "userId": "1",
+      "coachId": "coach-1",
+      "timestamp": "2025-08-08T14:36:03.282Z",
+      "tokensSpent": 10,
+      "xpGained": 5,
+      "hasRedFlag": true
+    },
+    {
+      "id": "1754664447907tpwq2hg6p",
+      "userId": "1",
+      "coachId": "coach-4",
+      "timestamp": "2025-08-08T14:47:27.907Z",
+      "tokensSpent": 7,
+      "xpGained": 5,
+      "hasRedFlag": true
+    }
+  ],
   "gameConfig": {
     "xpPerUnlock": 5,
     "tokenCostPerUnlock": 10

@@ -1,16 +1,31 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import type { Coach } from "../../../packages/shared-types";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Coach } from "shared-types";
 
-import { fetchCoaches } from "./api/coaches";
+import { fetchCoaches, unlockCoach, fetchUser } from "./api/coaches";
 import { CoachCard } from "./components/CoachCard";
 import { RedFlagModal } from "./components/RedFlagModal";
 
 function App() {
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
   const [showRedFlagModal, setShowRedFlagModal] = useState(false);
-  const [userTokens, setUserTokens] = useState(25);
-  const [userXP, setUserXP] = useState(100);
+  const [lastUnlockTime, setLastUnlockTime] = useState<number>(0);
+  const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
+
+  const queryClient = useQueryClient();
+  const userId = "1"; // For demo
+  const UNLOCK_COOLDOWN = 5000; // 5 seconds
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const timeSinceLastUnlock = now - lastUnlockTime;
+      const remaining = Math.max(0, UNLOCK_COOLDOWN - timeSinceLastUnlock);
+      setCooldownRemaining(remaining);
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [lastUnlockTime, UNLOCK_COOLDOWN]);
 
   const {
     data: coaches,
@@ -21,7 +36,53 @@ function App() {
     queryFn: fetchCoaches,
   });
 
+  const { data: user, isLoading: isLoadingUser } = useQuery({
+    queryKey: ["user", userId],
+    queryFn: () => fetchUser(userId),
+  });
+
+  const unlockMutation = useMutation({
+    mutationFn: (coachId: string) => unlockCoach(coachId, userId),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["user", userId], data.updatedUser);
+
+      if (data.showRedFlagWarning) {
+        setSelectedCoach(data.coach);
+        setShowRedFlagModal(true);
+      } else {
+        setShowRedFlagModal(false);
+        setSelectedCoach(null);
+      }
+    },
+    onError: (error) => {
+      console.error("Unlock failed:", error);
+      alert(`Failed to unlock coach: ${error.message}`);
+    },
+  });
+
   const handleUnlockClick = (coach: Coach) => {
+    if (!user) {
+      alert("User data not loaded yet!");
+      return;
+    }
+
+    if (user.unlockedCoaches.includes(coach.id)) {
+      alert("Coach already unlocked!");
+      return;
+    }
+
+    const now = Date.now();
+    const timeSinceLastUnlock = now - lastUnlockTime;
+    if (timeSinceLastUnlock < UNLOCK_COOLDOWN) {
+      const remainingTime = Math.ceil(
+        (UNLOCK_COOLDOWN - timeSinceLastUnlock) / 1000,
+      );
+      alert(
+        `Please wait ${remainingTime} seconds before unlocking another coach.`,
+      );
+      return;
+    }
+
     if (coach.hasRedFlag) {
       setSelectedCoach(coach);
       setShowRedFlagModal(true);
@@ -31,16 +92,8 @@ function App() {
   };
 
   const handleUnlock = (coach: Coach) => {
-    // Mock unlock logic
-    console.log(
-      `Unlocking coach: ${coach.name} for ${coach.unlockCost} tokens`,
-    );
-    setUserTokens((prev) => prev - coach.unlockCost);
-    setUserXP((prev) => prev + 5);
-
-    // Close modal if it was open
-    setShowRedFlagModal(false);
-    setSelectedCoach(null);
+    setLastUnlockTime(Date.now());
+    unlockMutation.mutate(coach.id);
   };
 
   const handleModalCancel = () => {
@@ -54,10 +107,10 @@ function App() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <span className="loading loading-spinner loading-lg"></span>
+        <span className="loading loading-spinner loading-lg" />
       </div>
     );
   }
@@ -80,11 +133,26 @@ function App() {
         <div className="stats shadow">
           <div className="stat">
             <div className="stat-title">Available Tokens</div>
-            <div className="stat-value text-primary">{userTokens}</div>
+            <div className="stat-value text-primary">{user?.tokens || 0}</div>
           </div>
           <div className="stat">
             <div className="stat-title">Experience Points</div>
-            <div className="stat-value text-secondary">{userXP}</div>
+            <div className="stat-value text-secondary">{user?.xp || 0}</div>
+          </div>
+          <div className="stat">
+            <div className="stat-title">Unlock Status</div>
+            <div className="stat-value text-accent">
+              {cooldownRemaining > 0 ? (
+                <span className="text-warning">
+                  {Math.ceil(cooldownRemaining / 1000)}s
+                </span>
+              ) : (
+                <span className="text-success">Ready</span>
+              )}
+            </div>
+            <div className="stat-desc">
+              {cooldownRemaining > 0 ? "Cooldown active" : "Can unlock"}
+            </div>
           </div>
         </div>
       </div>
@@ -96,6 +164,10 @@ function App() {
             key={coach.id}
             coach={coach}
             onUnlockClick={handleUnlockClick}
+            isUnlocked={user?.unlockedCoaches.includes(coach.id) || false}
+            isLoading={unlockMutation.isPending}
+            userTokens={user?.tokens || 0}
+            cooldownRemaining={cooldownRemaining}
           />
         ))}
       </div>

@@ -1,12 +1,39 @@
-import type { Coach } from "../../../../packages/shared-types";
+import type { Coach } from "shared-types";
 
 interface CoachCardProps {
   coach: Coach;
   onUnlockClick: (coach: Coach) => void;
+  isUnlocked?: boolean;
+  isLoading?: boolean;
+  userTokens?: number;
+  cooldownRemaining?: number;
 }
 
-export function CoachCard({ coach, onUnlockClick }: CoachCardProps) {
-  const isDisabled = !coach.available;
+export function CoachCard({
+  coach,
+  onUnlockClick,
+  isUnlocked = false,
+  isLoading = false,
+  userTokens = 0,
+  cooldownRemaining = 0,
+}: CoachCardProps) {
+  const isDisabled =
+    !coach.available ||
+    isUnlocked ||
+    userTokens < coach.unlockCost ||
+    cooldownRemaining > 0;
+  const hasInsufficientTokens = userTokens < coach.unlockCost;
+  const isOnCooldown = cooldownRemaining > 0;
+
+  const getButtonLabel = () => {
+    if (isLoading)
+      return <span className="loading loading-spinner loading-sm" />;
+    if (isUnlocked) return "✓ Unlocked";
+    if (!coach.available) return "Unavailable";
+    if (hasInsufficientTokens) return "Not enough tokens";
+    if (isOnCooldown) return `Wait ${Math.ceil(cooldownRemaining / 1000)}s`;
+    return "Unlock";
+  };
 
   return (
     <div className="card bg-base-100 w-full shadow-xl">
@@ -53,11 +80,13 @@ export function CoachCard({ coach, onUnlockClick }: CoachCardProps) {
           </div>
 
           <button
-            className={`btn btn-primary ${isDisabled ? "btn-disabled" : ""}`}
+            className={`btn btn-primary ${isDisabled ? "btn-disabled" : ""} ${
+              isLoading ? "loading" : ""
+            }`}
             onClick={() => onUnlockClick(coach)}
-            disabled={isDisabled}
+            disabled={isDisabled || isLoading}
           >
-            {isDisabled ? "Unavailable" : "Unlock"}
+            {getButtonLabel()}
           </button>
         </div>
 
