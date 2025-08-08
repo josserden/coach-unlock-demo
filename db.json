@@ -3,13 +3,9 @@
     {
       "id": "1",
       "name": "John Athlete",
-      "tokens": 0,
+      "tokens": 25,
       "xp": 115,
-      "unlockedCoaches": [
-        "coach-2",
-        "coach-1",
-        "coach-4"
-      ]
+      "unlockedCoaches": []
     }
   ],
   "coaches": [
